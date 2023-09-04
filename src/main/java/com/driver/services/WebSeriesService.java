@@ -8,6 +8,9 @@ import com.driver.repository.WebSeriesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
+import java.util.Optional;
+
 @Service
 public class WebSeriesService {
 
@@ -23,8 +26,26 @@ public class WebSeriesService {
         //Incase the seriesName is already present in the Db throw Exception("Series is already present")
         //use function written in Repository Layer for the same
         //Dont forget to save the production and webseries Repo
+       WebSeries webSeries= webSeriesRepository.findBySeriesName(webSeriesEntryDto.getSeriesName());
+       if(webSeries!=null)throw new Exception("Series is already present");
 
-        return null;
+       webSeries=new WebSeries();
+       webSeries.setSeriesName(webSeriesEntryDto.getSeriesName());
+       webSeries.setAgeLimit(webSeriesEntryDto.getAgeLimit());
+       webSeries.setRating(webSeriesEntryDto.getRating());
+       webSeries.setSubscriptionType(webSeriesEntryDto.getSubscriptionType());
+
+       ProductionHouse productionHouse=productionHouseRepository.findById(webSeriesEntryDto.getProductionHouseId()).get();
+       productionHouse.getWebSeriesList().add(webSeries);
+       productionHouse.setRatings(webSeriesEntryDto.getRating());
+
+       webSeries.setProductionHouse(productionHouse);
+
+       productionHouseRepository.save(productionHouse);
+
+      webSeries= webSeriesRepository.save(webSeries);
+
+        return webSeries.getId();
     }
 
 }
