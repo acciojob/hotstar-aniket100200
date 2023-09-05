@@ -74,11 +74,24 @@ public class SubscriptionService {
         if(SubscriptionType.ELITE.equals(user.getSubscription()))throw new Exception("Already the best Subscription");
 
         //if you are at basic just try to go in Pro..
-        if(SubscriptionType.BASIC.equals(user.getSubscription()))return totalAmountPaid(SubscriptionType.PRO,noOfScreensSubscribed)-totalAmountPaid(SubscriptionType.BASIC,noOfScreensSubscribed);
-
-        if(SubscriptionType.PRO.equals(user.getSubscription()))return totalAmountPaid(SubscriptionType.ELITE,noOfScreensSubscribed)-totalAmountPaid(SubscriptionType.PRO,noOfScreensSubscribed);
-
-        return 0;
+        int total=0;
+        if(SubscriptionType.BASIC.equals(user.getSubscription()))
+        {
+        total = totalAmountPaid(SubscriptionType.PRO, noOfScreensSubscribed) - totalAmountPaid(SubscriptionType.BASIC, noOfScreensSubscribed);
+        Subscription subscription=user.getSubscription();
+        subscription.setSubscriptionType(SubscriptionType.PRO);
+        subscription.setTotalAmountPaid(subscription.getTotalAmountPaid()+total);
+        subscriptionRepository.save(subscription);
+    }
+        if(SubscriptionType.PRO.equals(user.getSubscription()))
+        {
+            total = totalAmountPaid(SubscriptionType.ELITE, noOfScreensSubscribed) - totalAmountPaid(SubscriptionType.PRO, noOfScreensSubscribed);
+            Subscription subscription=user.getSubscription();
+            subscription.setSubscriptionType(SubscriptionType.ELITE);
+            subscription.setTotalAmountPaid(subscription.getTotalAmountPaid()+total);
+            subscriptionRepository.save(subscription);
+        }
+        return total;
     }
 
     public Integer calculateTotalRevenueOfHotstar(){
